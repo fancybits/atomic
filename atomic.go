@@ -20,7 +20,7 @@ func WriteFile(filename string, r io.Reader) (err error) {
 	dir, file := filepath.Split(filename)
 	f, err := ioutil.TempFile(dir, file)
 	if err != nil {
-		return fmt.Errorf("cannot create temp file: %v", err)
+		return fmt.Errorf("cannot create temp file: %w", err)
 	}
 	defer func() {
 		if err != nil {
@@ -33,10 +33,10 @@ func WriteFile(filename string, r io.Reader) (err error) {
 	defer f.Close()
 	name := f.Name()
 	if _, err := io.Copy(f, r); err != nil {
-		return fmt.Errorf("cannot write data to tempfile %q: %v", name, err)
+		return fmt.Errorf("cannot write data to tempfile %q: %w", name, err)
 	}
 	if err := f.Close(); err != nil {
-		return fmt.Errorf("can't close tempfile %q: %v", name, err)
+		return fmt.Errorf("can't close tempfile %q: %w", name, err)
 	}
 
 	// get the file mode from the original file and use that for the replacement
@@ -54,12 +54,12 @@ func WriteFile(filename string, r io.Reader) (err error) {
 
 		if sourceInfo.Mode() != destInfo.Mode() {
 			if err := os.Chmod(name, destInfo.Mode()); err != nil {
-				return fmt.Errorf("can't set filemode on tempfile %q: %v", name, err)
+				return fmt.Errorf("can't set filemode on tempfile %q: %w", name, err)
 			}
 		}
 	}
 	if err := ReplaceFile(name, filename); err != nil {
-		return fmt.Errorf("cannot replace %q with tempfile %q: %v", filename, name, err)
+		return fmt.Errorf("cannot replace %q with tempfile %q: %w", filename, name, err)
 	}
 	return nil
 }
